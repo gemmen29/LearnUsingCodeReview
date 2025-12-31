@@ -52,11 +52,11 @@ export const authOptions: AuthOptions = {
           dbUser = await UserModel.create({
             email: user.email,
             name: user.name || 'GitHub User',
-            githubUsername: (profile as any)?.login,
+            githubUsername: (profile as Record<string, unknown>)?.login as string,
             role: 'learner',
           });
-        } else if ((profile as any)?.login && dbUser && !dbUser.githubUsername) {
-          dbUser.githubUsername = (profile as any)?.login;
+        } else if ((profile as Record<string, unknown>)?.login && dbUser && !dbUser.githubUsername) {
+          dbUser.githubUsername = (profile as Record<string, unknown>)?.login as string;
           await dbUser.save();
         }
 

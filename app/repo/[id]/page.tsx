@@ -18,18 +18,12 @@ interface Commit {
 
 export default function RepoPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [repo, setRepo] = useState<Repository | null>(null);
   const [commits, setCommits] = useState<Commit[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      fetchData();
-    }
-  }, [status, resolvedParams.id]);
-
-  const fetchData = async () => {
+  const fetchData = React.useCallback(async () => {
     try {
       // Fetch repo details
       const repoRes = await fetch('/api/repos');
@@ -53,7 +47,13 @@ export default function RepoPage({ params }: { params: Promise<{ id: string }> }
     } finally {
       setLoading(false);
     }
-  };
+  }, [resolvedParams.id]);
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetchData();
+    }
+  }, [status, fetchData]);
 
   const handleStartReview = async (commitSha: string) => {
     try {

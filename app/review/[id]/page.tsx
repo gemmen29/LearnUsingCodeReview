@@ -17,7 +17,7 @@ interface CommitFile {
 
 export default function ReviewPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [review, setReview] = useState<Review | null>(null);
   const [repo, setRepo] = useState<Repository | null>(null);
   const [files, setFiles] = useState<CommitFile[]>([]);
@@ -25,13 +25,7 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'code' | 'checklist' | 'scoring'>('code');
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      fetchData();
-    }
-  }, [status, resolvedParams.id]);
-
-  const fetchData = async () => {
+  const fetchData = React.useCallback(async () => {
     try {
       // Fetch review
       const reviewsRes = await fetch('/api/reviews');
@@ -72,7 +66,13 @@ export default function ReviewPage({ params }: { params: Promise<{ id: string }>
     } finally {
       setLoading(false);
     }
-  };
+  }, [resolvedParams.id]);
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetchData();
+    }
+  }, [status, fetchData]);
 
   const handleAddComment = async (
     filePath: string,

@@ -54,12 +54,12 @@ export async function POST(request: NextRequest) {
 
     // Create new scores
     const createdScores = await RubricScoreModel.insertMany(
-      scores.map((s: any) => ({ ...s, reviewId }))
+      scores.map((s: { category: string; score: number; maxScore: number; feedback?: string }) => ({ ...s, reviewId }))
     );
 
     // Calculate total score
-    const totalScore = scores.reduce((sum: number, s: any) => sum + s.score, 0);
-    const maxScore = scores.reduce((sum: number, s: any) => sum + s.maxScore, 0);
+    const totalScore = scores.reduce((sum: number, s: { score: number }) => sum + s.score, 0);
+    const maxScore = scores.reduce((sum: number, s: { maxScore: number }) => sum + s.maxScore, 0);
     const finalScore = maxScore > 0 ? (totalScore / maxScore) * 100 : 0;
 
     // Update review with score
